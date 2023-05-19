@@ -1,7 +1,8 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 const express = require('express');
 const cors = require('cors');
+// const { default: AllToy } = require('../kids-day-client/src/Pages/AllToys/AllToy');
 require('dotenv').config();
 const app = express();
 
@@ -30,20 +31,22 @@ async function run() {
         const galleryCollection = client.db("toysDB").collection("gallery");
 
         app.get('/allToys', async (req, res) => {
-            const result = await toysCollection.find().toArray();
+            const result = await toysCollection.find().limit(20).toArray();
             res.send(result);
-        })
+        });
+
+        app.get('/allToys/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await toysCollection.findOne(query);
+            res.send(result)
+        });
 
         app.post('/allToys', async (req, res) => {
             const query = req.body;
             const result = await toysCollection.insertOne(query);
             res.send(result);
         });
-
-        // app.get('/allToys', async (req, res) => {
-        //     const result = await toysCollection.find().toArray();
-        //     res.send(result);
-        // });
 
         app.get('/gallery', async (req, res) => {
             const result = await galleryCollection.find().toArray();
