@@ -2,7 +2,6 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 const express = require('express');
 const cors = require('cors');
-// const { default: AllToy } = require('../kids-day-client/src/Pages/AllToys/AllToy');
 require('dotenv').config();
 const app = express();
 
@@ -39,7 +38,14 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await toysCollection.findOne(query);
-            res.send(result)
+            res.send(result);
+        });
+
+        app.get("/myToys/:email", async (req, res) => {
+            const email = req.params.email;
+            const filter = { seller_email: email };
+            const result = await toysCollection.find(filter).toArray();
+            res.send(result);
         });
 
         app.post('/allToys', async (req, res) => {
