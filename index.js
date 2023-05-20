@@ -29,6 +29,11 @@ async function run() {
         const toysCollection = client.db("toysDB").collection("toys");
         const galleryCollection = client.db("toysDB").collection("gallery");
 
+        app.get('/gallery', async (req, res) => {
+            const result = await galleryCollection.find().toArray();
+            res.send(result);
+        });
+
         app.get('/allToys', async (req, res) => {
             const result = await toysCollection.find().limit(20).toArray();
             res.send(result);
@@ -41,6 +46,7 @@ async function run() {
             res.send(result);
         });
 
+        // Filtered by email
         app.get("/myToys/:email", async (req, res) => {
             const email = req.params.email;
             const filter = { seller_email: email };
@@ -54,9 +60,20 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/gallery', async (req, res) => {
-            const result = await galleryCollection.find().toArray();
-            res.send(result);
+        app.delete("/deleteToys/:id", async (req, res) => {
+            const id = req.params.id;
+            try {
+                const query = { _id: new ObjectId(id) };
+                const result = await toysCollection.deleteOne(query);
+
+                if (result.deletedCount === 1) {
+                    res.status(200).json({ message: "Toy deleted successfully" });
+                } else {
+                    res.status(404).json({ message: "Toy not found" });
+                }
+            } catch (error) {
+                res.status(500).json({ message: "Internal server error" });
+            }
         });
 
         await client.db("admin").command({ ping: 1 });
