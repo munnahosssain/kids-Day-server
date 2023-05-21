@@ -54,6 +54,14 @@ async function run() {
             res.send(result);
         });
 
+        app.get("/sortByPrice", async (req, res) => {
+            const result = await toysCollection
+                .find({ seller_email: req.query?.email })
+                .sort({ price: parseInt(req.query?.sort) })
+                .toArray();
+            res.send(result);
+        });
+
         app.post('/allToys', async (req, res) => {
             const query = req.body;
             const result = await toysCollection.insertOne(query);
@@ -61,11 +69,10 @@ async function run() {
         });
 
         // Update Data
-        app.put('/allToys/:id', async (req, res) => {
+        app.patch('/allToys/:id', async (req, res) => {
             const id = req.params.id;
-            const query = req.body;
             const filter = { _id: new ObjectId(id) };
-
+            const query = req.body;
             const updateDoc = {
                 $set: {
                     picture_url: query.picture_url,
@@ -73,29 +80,15 @@ async function run() {
                     seller_name: query.seller_name,
                     seller_email: query.seller_email,
                     sub_category: query.sub_category,
-                    price: query.price,
-                    rating: query.rating,
-                    available_quantity: query.available_quantity,
+                    price: parseFloat(query.price),
+                    rating: parseFloat(query.rating),
+                    available_quantity: parseInt(query.available_quantity),
                     description: query.description
                 },
             };
             const result = await toysCollection.updateOne(filter, updateDoc);
             res.send(result);
-
         });
-        // app.put('/allToys/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = req.body;
-        //     const filter = { _id: new ObjectId(id) };
-
-        //     try {
-        //         const result = await toysCollection.updateOne(filter, { $set: query });
-        //         res.send(result);
-        //     } catch (error) {
-        //         console.error(error);
-        //         res.status(500).send('Internal Server Error');
-        //     }
-        // });
 
         app.delete("/deleteToys/:id", async (req, res) => {
             const id = req.params.id;
