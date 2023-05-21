@@ -60,20 +60,48 @@ async function run() {
             res.send(result);
         });
 
+        // Update Data
+        app.put('/allToys/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = req.body;
+            const filter = { _id: new ObjectId(id) };
+
+            const updateDoc = {
+                $set: {
+                    picture_url: query.picture_url,
+                    name: query.name,
+                    seller_name: query.seller_name,
+                    seller_email: query.seller_email,
+                    sub_category: query.sub_category,
+                    price: query.price,
+                    rating: query.rating,
+                    available_quantity: query.available_quantity,
+                    description: query.description
+                },
+            };
+            const result = await toysCollection.updateOne(filter, updateDoc);
+            res.send(result);
+
+        });
+        // app.put('/allToys/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = req.body;
+        //     const filter = { _id: new ObjectId(id) };
+
+        //     try {
+        //         const result = await toysCollection.updateOne(filter, { $set: query });
+        //         res.send(result);
+        //     } catch (error) {
+        //         console.error(error);
+        //         res.status(500).send('Internal Server Error');
+        //     }
+        // });
+
         app.delete("/deleteToys/:id", async (req, res) => {
             const id = req.params.id;
-            try {
-                const query = { _id: new ObjectId(id) };
-                const result = await toysCollection.deleteOne(query);
-
-                if (result.deletedCount === 1) {
-                    res.status(200).json({ message: "Toy deleted successfully" });
-                } else {
-                    res.status(404).json({ message: "Toy not found" });
-                }
-            } catch (error) {
-                res.status(500).json({ message: "Internal server error" });
-            }
+            const query = { _id: new ObjectId(id) };
+            const result = await toysCollection.deleteOne(query);
+            res.send(result);
         });
 
         await client.db("admin").command({ ping: 1 });
@@ -87,4 +115,4 @@ run().catch(console.dir);
 
 app.listen(port, () => {
     console.log(`Kids day listening on port ${port}`);
-})
+});
