@@ -39,6 +39,13 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/allToys/:category', async (req, res) => {
+            const category = req.params.category;
+            const filter = { sub_category: category };
+            const result = await toysCollection.find(filter).toArray()
+            res.send(result);
+        });
+
         app.get('/allToys/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -96,6 +103,11 @@ async function run() {
             const result = await toysCollection.deleteOne(query);
             res.send(result);
         });
+
+        // app.get('/category', async (req, res) => {
+        //     const result = await toysCollection.find().toArray()
+        //     res.send(result);
+        // })
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
